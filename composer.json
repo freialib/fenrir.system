@@ -1,4 +1,10 @@
 {
 	"name": "fenrir/system",
-	"type": "freia-module"
+	"type": "freia-module",
+	"keywords": ["freialib"],
+	"homepage": "http://freialib.github.io/",
+	"license": "BSD-2",
+	"require": {
+		"php": ">=5.4.10"
+	}
 }
