@@ -393,17 +393,19 @@ class PdoStatement {
 	 * @return boolean
 	 */
 	protected function booleanize($value, array $map = null) {
-		$map !== null or $map = array
-			(
-				// truthy
-				'true' => true,
-				'on' => true,
-				'yes' => true,
-				// falsy
-				'false' => false,
-				'off' => false,
-				'no' => false,
-			);
+		$map !== null or $map = [
+
+			// truthy
+			'true' => true,
+			'on' => true,
+			'yes' => true,
+
+			// falsy
+			'false' => false,
+			'off' => false,
+			'no' => false,
+
+		];
 
 		// augment map
 		$map['1'] = true;

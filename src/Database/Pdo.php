@@ -29,10 +29,9 @@ abstract class PdoDatabase implements PdoDatabaseSignature {
 		// Normalize Options Configuration
 		// -------------------------------
 
-		$default_options = array
-			(
-				\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
-			);
+		$default_options = [
+			\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+		];
 
 		if ( ! isset($conf['options'])) {
 			$conf['options'] = $default_options;
@@ -44,11 +43,10 @@ abstract class PdoDatabase implements PdoDatabaseSignature {
 		// Normalize Attributes Configuration
 		// ----------------------------------
 
-		$default_attributes = array
-			(
-				\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-				\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
-			);
+		$default_attributes = [
+			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+			\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+		];
 
 		if ( ! isset($conf['attributes'])) {
 			$conf['attributes'] = $default_attributes;
