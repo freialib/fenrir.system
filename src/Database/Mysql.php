@@ -39,6 +39,11 @@ class MysqlDatabase extends PdoDatabase implements MysqlDatabaseSignature {
 // ---- Transactions ----------------------------------------------------------
 
 	/**
+	 * @var int
+	 */
+	protected $savepoint = 0;
+
+	/**
 	 * Begin transaction or savepoint.
 	 *
 	 * @return static $this
