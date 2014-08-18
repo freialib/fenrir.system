@@ -59,8 +59,8 @@ trait MysqlRepoTrait {
 	/**
 	 * @return \hlin\archetype\Model
 	 */
-	function store(\hlin\archetype\Model $thread) {
-		return $this->entry($this->sqlinsert($thread->toArray()));
+	function store(\hlin\archetype\Model $model) {
+		return $this->entry($this->sqlinsert($model->toArray()));
 	}
 
 // ---- Private ---------------------------------------------------------------
