@@ -30,7 +30,7 @@ class Web implements \hlin\archetype\Web {
 	 * @return string
 	 */
 	function requestUri() {
-		return preg_replace('#\?.*$#', '', $_SERVER['REQUEST_URI']);
+		return urlencode(preg_replace('#\?.*$#', '', $_SERVER['REQUEST_URI']));
 	}
 
 	/**
@@ -52,6 +52,13 @@ class Web implements \hlin\archetype\Web {
 	 */
 	function requestQueryData() {
 		return $_GET;
+	}
+
+	/**
+	 * @return array
+	 */
+	function requestFiles() {
+		return $_FILES;
 	}
 
 	/**
