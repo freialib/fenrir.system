@@ -227,11 +227,21 @@ class Filesystem implements \hlin\archetype\Filesystem {
 	}
 
 	/**
+	 * @codeCoverageIgnore
 	 * @see http://www.php.net/manual/en/function.touch.php
 	 * @return string
 	 */
 	function basename($path, $suffix = null) {
 		return basename($path, $suffix);
+	}
+
+	/**
+	 * @codeCoverageIgnore
+	 * @see http://www.php.net/manual/en/function.move-uploaded-file.php
+	 * @return boolean
+	 */
+	function move_uploaded_file($filename, $destination) {
+		return move_uploaded_file($filename, $destination);
 	}
 
 } # class
