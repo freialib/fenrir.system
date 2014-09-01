@@ -30,7 +30,7 @@ class Web implements \hlin\archetype\Web {
 	 * @return string
 	 */
 	function requestUri() {
-		return urlencode(preg_replace('#\?.*$#', '', $_SERVER['REQUEST_URI']));
+		return urldecode(preg_replace('#\?.*$#', '', $_SERVER['REQUEST_URI']));
 	}
 
 	/**
