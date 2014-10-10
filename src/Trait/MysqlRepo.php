@@ -145,14 +145,14 @@ trait MysqlRepoTrait {
 		$where = $this->parseconstraints($criteria, true);
 		$order_by = $this->parseorder($order_by, true);
 
-		$limit = '';
+		$limiter = '';
 
 		if ($limit != null) {
-			$limit = " LIMIT $limit ";
+			$limiter = " LIMIT $limit ";
 		}
 
 		if ($offset != null) {
-			$limit = "{$limit}OFFSET $offset";
+			$limiter = "{$limiter}OFFSET $offset";
 		}
 
 		$select = $db->prepare
@@ -162,7 +162,7 @@ trait MysqlRepoTrait {
 					  FROM `[table]`
 					 $where
 					 $order_by
-					$limit
+					$limiter
 				",
 				[ 'table' => $this->constants()['table'] ]
 			);
