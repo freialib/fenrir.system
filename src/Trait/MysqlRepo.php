@@ -155,19 +155,27 @@ trait MysqlRepoTrait {
 			$limiter = "{$limiter}OFFSET $offset";
 		}
 
-		$select = $db->prepare
+		$select = $this->sqlselect($fields, $where, $order_by, $limiter);
+
+		return $select->execute()->fetch_all();
+	}
+
+	/**
+	 * @return \fenrir\MysqlDatabase
+	 */
+	protected function sqlselect($fields, $where, $order_by, $limiter) {
+
+		return $db->prepare
 			(
 				"
 					SELECT $fields
-					  FROM `[table]`
+					  FROM `[table]` entry
 					 $where
 					 $order_by
 					$limiter
 				",
 				[ 'table' => $this->constants()['table'] ]
 			);
-
-		return $select->execute()->fetch_all();
 	}
 
 	/**
