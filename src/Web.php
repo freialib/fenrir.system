@@ -55,6 +55,13 @@ class Web implements \hlin\archetype\Web {
 	}
 
 	/**
+	 * @return string
+	 */
+	function requestRawQueryData() {
+		return $_SERVER['QUERY_STRING'];
+	}
+
+	/**
 	 * @return array
 	 */
 	function requestFiles() {
@@ -88,6 +95,19 @@ class Web implements \hlin\archetype\Web {
 
 		if ( ! empty($contents)) {
 			echo $contents;
+		}
+	}
+
+	/**
+	 * ...
+	 */
+	function printf($format) {
+		$args = func_get_args();
+		if (count($args) == 1) {
+			echo $args[0];
+		}
+		else { // more then 1 argument
+			echo call_user_func_array('sprintf', $args);
 		}
 	}
 
