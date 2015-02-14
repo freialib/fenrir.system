@@ -15,6 +15,61 @@ trait MysqlRepoTrait {
 	protected $db = null;
 
 	/**
+	 * @return boolean
+	 */
+	function has($searchedId) {
+		$db = $this->db;
+		$idfield = $this->idfield();
+		$count = $db->prepare
+			(
+				"	SELECT count(*)
+					  FROM `[table]`
+					 WHERE $idfield = :searchedId
+				",
+				$this->constants()
+			)
+			->num(':searchedId', $searchedId)
+			->execute()
+			->fetch_calc();
+
+		return $count != 0;
+	}
+
+	/**
+	 * @return int
+	 */
+	function total() {
+		$db = $this->db;
+		return $db->prepare
+			(
+				'	SELECT count(*)
+					  FROM `[table]`
+				',
+				$this->constants()
+			)
+			->execute()
+			->fetch_calc();
+	}
+
+	/**
+	 * @return int
+	 */
+	function count($criteria) {
+		$db = $this->db;
+		$where = $this->parseconstraints($criteria, true);
+		return $db->prepare
+			(
+				"	SELECT count(*)
+					  FROM `[table]` entry
+					       $where
+				",
+				$this->constants()
+			)
+			->execute()
+			->fetch_calc();
+	}
+
+	/**
 	 * You can specify fields via %fields
 	 * You can specify limit via %limit and offset via %offset
 	 * You can specify order rules via %order_by
@@ -108,8 +163,7 @@ trait MysqlRepoTrait {
 
 		$db->prepare
 			(
-				"
-					INSERT INTO `[table]`
+				"	INSERT INTO `[table]`
 						   ($key_fields)
 					VALUES ($value_fields)
 				",
@@ -175,8 +229,7 @@ trait MysqlRepoTrait {
 
 		return $db->prepare
 			(
-				"
-					SELECT $fields
+				"	SELECT $fields
 					  FROM `[table]` entry
 					 $where
 					 $order_by
