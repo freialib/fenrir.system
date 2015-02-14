@@ -156,7 +156,7 @@ class PdoStatement {
 		}
 		catch (\Exception $pdo_exception) {
 			$message = $pdo_exception->getMessage();
-			$message .= "\n".\hlin\Text::reindent($this->query, "\t");
+			$message .= "\n".$this->formatQuery($this->query);
 			throw new Panic($message, 500, $pdo_exception);
 		}
 
@@ -422,6 +422,47 @@ class PdoStatement {
 		else { // undefined boolean
 			throw new Panic("Unrecognized boolean value passed: $value");
 		}
+	}
+
+	/**
+	 * @return string formatted query
+	 */
+	protected function formatQuery($query, $indentLevel = 4) {
+
+		$indent = str_repeat(' ', $indentLevel);
+
+		// assume tabs are always 4 spaces
+		$query = str_replace("\t", "    ", $query);
+		// line processing
+		$rawQueryLines = explode("\n", str_replace("\n\r", "\n", trim($query)));
+
+		$firstline = '';
+		if (count($rawQueryLines) > 0 && trim($rawQueryLines[0]) != '') {
+			$firstline = $indent.ltrim(array_shift($rawQueryLines))."\n";
+		}
+
+		$queryLines = [];
+		$shortestIndent = 64;
+		foreach ($rawQueryLines as $line) {
+			$trimmedLine = ltrim($line);
+			if (strlen($trimmedLine) > 0) {
+				$queryLines[] = $line;
+				$lineIndentLength = strlen($line) - strlen($trimmedLine);
+				if ($lineIndentLength < $shortestIndent) {
+					$shortestIndent = $lineIndentLength;
+				}
+			}
+		}
+
+		// we trim to lowest tab count
+		$indentOffset = intval($shortestIndent / 4) * 4;
+
+		$formattedQueryLines = [];
+		foreach ($queryLines as $line) {
+			$formattedQueryLines[] = $indent.substr($line, $indentOffset);
+		}
+
+		return $firstline.implode("\n", $formattedQueryLines)."\n\n";
 	}
 
 } # class
