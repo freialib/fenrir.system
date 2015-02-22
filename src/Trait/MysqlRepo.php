@@ -106,11 +106,50 @@ trait MysqlRepoTrait {
 	}
 
 	/**
+	 * @return \hlin\archetype\Model|null
+	 */
+	function findEntry(array $logic = null) {
+		if ($logic != null) {
+			$logic['%limit'] = 1;
+		}
+		else { // logic == null
+			$logic = [ '%limit' => 1 ];
+		}
+
+		$entries = $this->find($logic);
+
+		if ( ! empty($entries)) {
+			return $entries[0];
+		}
+		else { // empty entries
+			return null;
+		}
+	}
+
+	/**
+	 * ...
+	 */
+	function destroyEntry($entryId) {
+		$dbh = $this->db;
+		$idfield = $this->idfield();
+
+		$dbh->prepare
+			(
+				"	DELETE FROM `[table]`
+				     WHERE `$idfield` = :entryId
+				",
+				[ 'table' => $this->constants()['table'] ]
+			)
+			->num(':entryId', $entryId)
+			->execute();
+	}
+
+	/**
 	 * @return \hlin\archetype\Model
 	 */
-	function entry($entry_id) {
+	function entry($entryId) {
 		$modelClass = \hlin\PHP::pnn($this->constants()['model']);
-		return $modelClass::instance($this->sqlentry($entry_id));
+		return $modelClass::instance($this->sqlentry($entryId));
 	}
 
 	/**
