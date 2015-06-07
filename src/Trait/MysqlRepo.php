@@ -40,7 +40,7 @@ trait MysqlRepoTrait {
 	 */
 	function total() {
 		$db = $this->db;
-		return $db->prepare
+		return (int) $db->prepare
 			(
 				'	SELECT count(*)
 					  FROM `[table]`
@@ -57,7 +57,7 @@ trait MysqlRepoTrait {
 	function count($criteria) {
 		$db = $this->db;
 		$where = $this->parseconstraints($criteria, true);
-		return $db->prepare
+		return (int) $db->prepare
 			(
 				"	SELECT count(*)
 					  FROM `[table]` entry
@@ -159,6 +159,13 @@ trait MysqlRepoTrait {
 		return $this->entry($this->sqlinsert($model->toArray()));
 	}
 
+	/**
+	 * @return \hlin\archetype\Model
+	 */
+	function update(\hlin\archetype\Model $model) {
+		return $this->entry($this->sqlupdate($model->toArray()));
+	}
+
 // ---- Private ---------------------------------------------------------------
 
 	/**
@@ -186,19 +193,26 @@ trait MysqlRepoTrait {
 
 	/**
 	 * Inserts fields, if bools or nums are specified the fields mentioned are
-	 * treated as desired,
+	 * treated as strings.
 	 *
 	 * @return int new entry id
 	 */
-	protected function sqlinsert(array $fields, array $nums = [], array $bools = []) {
-
+	protected function sqlinsert(array $fields, array $nums = null, array $bools = null) {
 		$db = $this->db;
+
+		$nums != null or $nums = [];
+		$bools != null or $bools = [];
 
 		$keys = array_keys($fields);
 		$strs = array_diff($keys, $bools, $nums);
 
-		$key_fields = \hlin\Arr::join(', ', $keys, function ($k, $val) { return "`$val`"; });
-		$value_fields = \hlin\Arr::join(', ', $keys, function ($k, $val) { return ":$val "; });
+		$key_fields = \hlin\Arr::join(', ', $keys, function ($_, $val) {
+			return "`$val`";
+		});
+
+		$value_fields = \hlin\Arr::join(', ', $keys, function ($_, $val) {
+			return ":$val ";
+		});
 
 		$db->prepare
 			(
@@ -214,6 +228,43 @@ trait MysqlRepoTrait {
 			->execute();
 
 		return $db->lastInsertId();
+	}
+
+	/**
+	 * Update fields, if bools or nums are specified the fields mentioned are
+	 * treated as strings
+	 *
+	 * @return int updated entry id
+	 */
+	protected function sqlupdate(array $fields, array $nums = null, array $bools = null) {
+		$db = $this->db;
+
+		$idfield = $this->idfield();
+
+		$nums != null or $nums = [];
+		$bools != null or $bools = [];
+
+		$keys = array_diff(array_keys($fields), [ $idfield ]);
+		$strs = array_diff($keys, $bools, $nums);
+
+		$setters = \hlin\Arr::join(",\n\t\t\t\t\t       ", $keys, function ($_, $val) {
+			return "`$val` = :$val";
+		});
+
+		$db->prepare
+			(
+				"	UPDATE `[table]`
+					   SET $setters
+					 WHERE `$idfield` = :$idfield
+				",
+				[ 'table' => $this->constants()['table'] ]
+			)
+			->strs($fields, $strs)
+			->bools($fields, $bools)
+			->nums($fields, $nums)
+			->execute();
+
+		return $fields[$idfield];
 	}
 
 	/**
