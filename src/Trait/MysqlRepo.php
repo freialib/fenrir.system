@@ -245,7 +245,7 @@ trait MysqlRepoTrait {
 		$bools != null or $bools = [];
 
 		$keys = array_diff(array_keys($fields), [ $idfield ]);
-		$strs = array_diff($keys, $bools, $nums);
+		$strs = array_diff(array_keys($fields), $bools, $nums);
 
 		$setters = \hlin\Arr::join(",\n\t\t\t\t\t       ", $keys, function ($_, $val) {
 			return "`$val` = :$val";
