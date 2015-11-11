@@ -30,7 +30,10 @@ abstract class PdoDatabase implements PdoDatabaseSignature {
 		// -------------------------------
 
 		$default_options = [
-			\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8'
+			'utf8-names' => [ 
+				'key' => \PDO::MYSQL_ATTR_INIT_COMMAND, 
+				'value' => 'SET NAMES utf8'
+			]
 		];
 
 		if ( ! isset($conf['options'])) {
@@ -44,8 +47,8 @@ abstract class PdoDatabase implements PdoDatabaseSignature {
 		// ----------------------------------
 
 		$default_attributes = [
-			\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-			\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC
+			'error-mode' => [ 'key' => \PDO::ATTR_ERRMODE, 'value' => \PDO::ERRMODE_EXCEPTION ],
+			'default-fetch-mode' => [ 'key' => \PDO::ATTR_DEFAULT_FETCH_MODE, 'value' => \PDO::FETCH_ASSOC ]
 		];
 
 		if ( ! isset($conf['attributes'])) {
@@ -106,10 +109,22 @@ abstract class PdoDatabase implements PdoDatabaseSignature {
 	 */
 	protected function setup() {
 		$conf = $this->conf;
-		$dbh = $this->dbh = new \PDO($conf['dsn'], $conf['username'], $conf['password'], $conf['options']);
-		foreach ($this->conf['attributes'] as $attr => $val) {
-			$dbh->setAttribute($attr, $val);
+
+		$options = [];
+		foreach ($conf['options'] as $key => $setting) {
+			if ($setting != null && is_array($setting)) {
+				$options[$setting['key']] = $setting['value'];
+			}
 		}
+
+		$dbh = $this->dbh = new \PDO($conf['dsn'], $conf['username'], $conf['password'], $options);
+		
+		foreach ($this->conf['attributes'] as $key => $setting) {
+			if ($setting != null && is_array($setting)) {
+				$dbh->setAttribute($setting['key'], $setting['value']);
+			}
+		}
+
 		$offset = \hlin\Time::timezoneOffset($conf['timezone']);
 		$dbh->exec("SET time_zone='$offset';");
 	}
