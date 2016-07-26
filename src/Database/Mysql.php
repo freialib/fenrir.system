@@ -12,8 +12,7 @@ class MysqlDatabase extends PdoDatabase implements MysqlDatabaseSignature {
 	 *
 	 * @return \fenrir\MysqlStatement
 	 */
-	function prepare($statement = null, array $placeholders = null)
-	{
+	function prepare($statement = null, array $placeholders = null) {
 		$this->dbh !== null or $this->setup();
 
 		if ($placeholders !== null) {

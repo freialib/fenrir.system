@@ -79,8 +79,7 @@ abstract class PdoDatabase implements PdoDatabaseSignature {
 	/**
 	 * Cleanup
 	 */
-	function __destruct()
-	{
+	function __destruct() {
 		$this->dbh = null;
 	}
 
