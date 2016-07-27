@@ -83,7 +83,7 @@ class MysqliStatement {
 			}
 		}
 
-		$this->params[$parameter] = [ $value, 'i' ];
+		$this->params[$parameter] = [ $value, is_float($value) ? 'd' : 'i' ];
 		return $this;
 	}
 
@@ -115,7 +115,7 @@ class MysqliStatement {
 	 * @return static $this
 	 */
 	function bindnum($parameter, &$variable) {
-		$this->params[$parameter] = [ &$variable, 'i' ];
+		$this->params[$parameter] = [ &$variable, 'd' ];
 		return $this;
 	}
 

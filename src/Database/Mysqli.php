@@ -30,6 +30,18 @@ class MysqliDatabase implements MysqlDatabaseSignature {
 			throw new Panic('Required database configuration value missing.');
 		}
 
+		if ( ! array_key_exists('verifyServerCert', $conf)) {
+			$conf['verifyServerCert'] = true;
+		}
+
+		if ( ! array_key_exists('port', $conf)) {
+			$conf['port'] = 3306;
+		}
+
+		if ( ! array_key_exists('persistent', $conf)) {
+			$conf['persistent'] = false;
+		}
+
 		// Parse DSN
 		// ---------
 		
@@ -133,7 +145,7 @@ class MysqliDatabase implements MysqlDatabaseSignature {
 
 		$this->preconnectConf($dbh);
 
-		\mysqli_real_connect($dbh, $conf['host'], $conf['username'], $conf['password'], $conf['dbname']);
+		$this->establishConnection($dbh, $conf);
 
 		$this->postconnectConf($dbh);
 
@@ -151,6 +163,53 @@ class MysqliDatabase implements MysqlDatabaseSignature {
 	/**
 	 * ...
 	 */
+	protected function establishConnection($dbh, $conf) {
+		
+		if (array_key_exists('ssl', $conf)) {
+
+			$sslconf = $conf['ssl'];
+
+			mysqli_ssl_set (
+				$dbh,
+				$sslconf['key'],
+				$sslconf['cert'],
+				$sslconf['ca'],
+				null,
+				null
+			);
+
+			$flags = null;
+			if ($conf['verifyServerCert'] && defined('MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT')) {
+				$flags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+			}
+
+			\mysqli_real_connect (
+				$dbh,
+				($conf['persistent'] ? 'p:' : '') . $conf['host'],
+				$conf['username'],
+				$conf['password'],
+				$conf['dbname'],
+				$conf['port'],
+				null,
+				$flags
+			);
+		}
+		else { // non-ssl
+
+			\mysqli_real_connect (
+				$dbh, 
+				($conf['persistent'] ? 'p:' : '') . $conf['host'], 
+				$conf['username'], 
+				$conf['password'], 
+				$conf['dbname'],
+				$conf['port']
+			);
+		}
+	}
+
+	/**
+	 * ...
+	 */
 	protected function reportFailure($statement) {
 		throw new Panic($statement);
 	}
@@ -162,7 +221,13 @@ class MysqliDatabase implements MysqlDatabaseSignature {
 	 */
 	function quote($value) {
 		$this->dbh or $this->setup();
-		return \mysqli_real_escape_string($this->dbh, $value);
+
+		if (is_string($value)) {
+			return '"'.\mysqli_real_escape_string($this->dbh, $value).'"';
+		}
+		else { // non-string
+			return \mysqli_real_escape_string($this->dbh, $value);	
+		}
 	}
 
 	/**
