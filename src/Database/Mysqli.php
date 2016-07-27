@@ -104,6 +104,20 @@ class MysqliDatabase implements MysqlDatabaseSignature {
 // ---- Private ---------------------------------------------------------------
 
 	/**
+	 * Overwrite to add options.
+	 */
+	protected function preconnectConf($dbh) {
+		// hook
+	}
+
+	/**
+	 * Overwrite to add options.
+	 */
+	protected function postconnectConf($dbh) {
+		// hook
+	}
+
+	/**
 	 * Performs database initialization.
 	 */
 	protected function setup() {
@@ -117,7 +131,11 @@ class MysqliDatabase implements MysqlDatabaseSignature {
 			}
 		}
 
+		$this->preconnectConf($dbh);
+
 		\mysqli_real_connect($dbh, $conf['host'], $conf['username'], $conf['password'], $conf['dbname']);
+
+		$this->postconnectConf($dbh);
 
 		/* check connection */
 		if (mysqli_connect_errno()) {
